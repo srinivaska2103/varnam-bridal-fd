@@ -23,6 +23,12 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Build arguments for public endpoints
+ARG NEXT_PUBLIC_API_BASE_URL=https://api.varnam.vextech.in/api
+ARG NEXT_PUBLIC_APP_URL=https://varnam.vexatech.in
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+
 # Build the Next.js application
 RUN npm run build
 
@@ -57,4 +63,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || curl -f http://localhost:3000/ || exit 1
 
 CMD ["npm", "start"]
-
