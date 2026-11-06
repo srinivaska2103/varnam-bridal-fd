@@ -977,6 +977,7 @@ export default function WebsitePage() {
   // Centralized URL generation with custom domain support and environment handling
   const fullPublicUrl = getPublicStudioUrl(currentSlug, customDomain);
   const fullPreviewUrl = getPreviewStudioUrl(currentSlug, customDomain);
+  const displayHost = fullPublicUrl ? fullPublicUrl.replace(/^https?:\/\//i, '') : (currentSlug ? `app.varnam.vexatech.in/${currentSlug}` : 'Not set');
   const publicWebUrl = fullPublicUrl || (currentSlug ? `/${currentSlug}` : '#');
   const previewWebUrl = fullPreviewUrl || (currentSlug ? `/${currentSlug}?preview=true` : '#');
 
@@ -1486,8 +1487,8 @@ export default function WebsitePage() {
             </div>
           </div>
           <div className="mt-3">
-            <div className="text-sm sm:text-base font-bold text-stone-900 truncate">
-              {currentSlug ? `${currentSlug}.vexatech.in` : 'Not set'}
+            <div className="text-sm sm:text-base font-bold text-stone-900 truncate" title={displayHost}>
+              {displayHost}
             </div>
             <p className="text-xs text-stone-400 mt-0.5">Public studio handle</p>
           </div>

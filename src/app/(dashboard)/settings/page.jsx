@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Building2,
@@ -63,6 +64,7 @@ const BRAND_LOGO_OPTIONS = [
 ];
 
 export default function SettingsPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { addToast } = useToast();
   const { user, currentBusiness, setCurrentBusiness, memberships } = useAuthStore();
@@ -365,6 +367,14 @@ export default function SettingsPage() {
         description: 'Your studio profile, URL slug, and branding have been updated successfully.',
         variant: 'success',
       });
+
+      // If the URL slug changed, smoothly redirect to the new route
+      const newSlug = formData.slug?.trim()?.toLowerCase();
+      if (newSlug && currentBusiness?.slug && newSlug !== currentBusiness.slug) {
+        setTimeout(() => {
+          router.replace(`/${newSlug}/admin/settings`);
+        }, 600);
+      }
     },
     onError: (err) => {
       addToast({
