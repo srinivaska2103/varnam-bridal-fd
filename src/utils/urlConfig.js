@@ -60,9 +60,20 @@ export function getPublicStudioUrl(slug, customDomain = null) {
   }
 
   if (!slug) return '';
-  const base = getAppBaseUrl();
   const cleanSlug = slug.toString().trim().replace(/^\/+/, '');
-  return `${base}/${cleanSlug}`;
+  // Always resolve public studio website to production domain app.varnam.vexatech.in
+  return `${PRODUCTION_APP_URL}/${cleanSlug}`;
+}
+
+/**
+ * Generates the full public enquiry form URL for a studio.
+ * @param {string} slug - The studio slug.
+ * @returns {string} The public enquiry form URL.
+ */
+export function getPublicEnquiryFormUrl(slug) {
+  if (!slug) return '';
+  const cleanSlug = slug.toString().trim().replace(/^\/+/, '');
+  return `${PRODUCTION_APP_URL}/${cleanSlug}/enquiry-form`;
 }
 
 /**

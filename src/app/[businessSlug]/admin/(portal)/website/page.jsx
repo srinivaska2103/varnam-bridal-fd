@@ -72,7 +72,7 @@ import { useModalAlert } from '@/components/ui/ModalAlert';
 import { useAuthStore } from '@/store/authStore';
 import { websiteService } from '@/services/website';
 import { formatINR, formatDate } from '@/utils/formatters';
-import { getPublicStudioUrl, getPreviewStudioUrl } from '@/utils/urlConfig';
+import { getPublicStudioUrl, getPreviewStudioUrl, getPublicEnquiryFormUrl } from '@/utils/urlConfig';
 import { ContactSalesModal } from '@/components/subscription/ContactSalesModal';
 import FooterBuilderSection from '@/components/website/FooterBuilderSection';
 
@@ -977,6 +977,7 @@ export default function WebsitePage() {
   // Centralized URL generation with custom domain support and environment handling
   const fullPublicUrl = getPublicStudioUrl(currentSlug, customDomain);
   const fullPreviewUrl = getPreviewStudioUrl(currentSlug, customDomain);
+  const fullEnquiryUrl = getPublicEnquiryFormUrl(currentSlug);
   const displayHost = fullPublicUrl ? fullPublicUrl.replace(/^https?:\/\//i, '') : (currentSlug ? `app.varnam.vexatech.in/${currentSlug}` : 'Not set');
   const publicWebUrl = fullPublicUrl || (currentSlug ? `/${currentSlug}` : '#');
   const previewWebUrl = fullPreviewUrl || (currentSlug ? `/${currentSlug}?preview=true` : '#');
@@ -986,7 +987,7 @@ export default function WebsitePage() {
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(fullPublicUrl);
       addToast({
-        title: 'URL Copied!',
+        title: 'Website URL Copied!',
         description: `Copied ${fullPublicUrl} to clipboard.`,
         variant: 'success',
       });
@@ -994,6 +995,24 @@ export default function WebsitePage() {
       addToast({
         title: 'Public URL',
         description: fullPublicUrl,
+        variant: 'info',
+      });
+    }
+  };
+
+  const handleCopyEnquiryUrl = () => {
+    if (!fullEnquiryUrl) return;
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(fullEnquiryUrl);
+      addToast({
+        title: 'Enquiry Form URL Copied!',
+        description: `Copied ${fullEnquiryUrl} to clipboard.`,
+        variant: 'success',
+      });
+    } else {
+      addToast({
+        title: 'Enquiry Form URL',
+        description: fullEnquiryUrl,
         variant: 'info',
       });
     }
@@ -1639,10 +1658,18 @@ export default function WebsitePage() {
 
                 {/* Display Address Box */}
                 {currentSlug ? (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-1">
-                    <div className="flex-1 flex items-center px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl font-mono text-xs sm:text-sm text-stone-800 break-all select-all shadow-2xs">
-                      <span className="text-stone-400 select-none mr-1">URL:</span>
-                      <span className="font-semibold text-orange-700">{fullPublicUrl}</span>
+                  <div className="space-y-2 pt-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                      <div className="flex-1 flex items-center px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl font-mono text-xs sm:text-sm text-stone-800 break-all select-all shadow-2xs">
+                        <span className="text-stone-400 select-none mr-2 font-sans font-semibold text-xs">Website URL:</span>
+                        <span className="font-semibold text-orange-700">{fullPublicUrl}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                      <div className="flex-1 flex items-center px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl font-mono text-xs sm:text-sm text-stone-800 break-all select-all shadow-2xs">
+                        <span className="text-stone-400 select-none mr-2 font-sans font-semibold text-xs">Enquiry Form:</span>
+                        <span className="font-semibold text-orange-700">{fullEnquiryUrl}</span>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -1664,7 +1691,18 @@ export default function WebsitePage() {
                       title="Copy Public Website URL to clipboard"
                     >
                       <Copy className="w-3.5 h-3.5 mr-1.5 text-stone-500" />
-                      Copy URL
+                      Copy Website URL
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCopyEnquiryUrl}
+                      className="border-stone-300 text-stone-700 hover:bg-stone-50 font-medium"
+                      title="Copy Public Enquiry Form URL to clipboard"
+                    >
+                      <Copy className="w-3.5 h-3.5 mr-1.5 text-stone-500" />
+                      Copy Form URL
                     </Button>
 
                     <Button

@@ -47,7 +47,7 @@ const CEREMONY_TYPE_OPTIONS = [
 
 export default function PublicStudioWebsitePage({ params }) {
   const resolvedParams = use(params);
-  const slug = resolvedParams.businessSlug;
+  const slug = resolvedParams.businessSlug; 
   const searchParams = useSearchParams();
   const isPreview = searchParams.get('preview') === 'true';
 

@@ -490,11 +490,7 @@ export default function SettingsPage() {
                       setFormData({ ...formData, slug: sanitized });
                       if (formErrors.slug) setFormErrors({ ...formErrors, slug: null });
                     }}
-                    helperText={
-                      typeof window !== 'undefined'
-                        ? `Public URL: ${window.location.origin}/${formData.slug || 'studio-slug'}/enquiry-form`
-                        : `Public URL: /${formData.slug || 'studio-slug'}/enquiry-form`
-                    }
+                    helperText={`Public Form URL: https://app.varnam.vexatech.in/${formData.slug || 'studio-slug'}/enquiry-form`}
                   />
 
                   {/* Contact Fields (Phone & Email) */}
