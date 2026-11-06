@@ -19,7 +19,7 @@ import {
   X,
   Plus,
 } from 'lucide-react';
-import { publicFormApi } from '@/services/api/modules';
+import { publicFormApi, publicWebsiteApi } from '@/services/api/modules';
 import { ModernDropdown, ModernDatePicker } from '@/components/ui';
 
 const EVENT_TYPE_OPTIONS = [
