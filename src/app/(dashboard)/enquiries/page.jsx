@@ -907,9 +907,21 @@ export default function EnquiriesPage() {
                   </div>
                   <div className="bg-[#FFFDF9] border border-[#F0E7DE] rounded-2xl p-3 sm:p-4 divide-y divide-stone-100 shadow-2xs">
                     {Object.entries(detailModalEnquiry.custom_answers).map(([key, val]) => {
-                      const isImage = typeof val === 'string' && (
-                        val.startsWith('data:image/') ||
-                        (val.startsWith('http') && /\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(val))
+                      // Format nested objects gracefully (e.g. consultation date & time)
+                      let displayVal = val;
+                      if (val && typeof val === 'object' && !Array.isArray(val)) {
+                        const date = val.date || val.preferred_date || val.event_date;
+                        const time = val.time || val.preferred_time || val.slot;
+                        if (date || time) {
+                          displayVal = [date, time].filter(Boolean).join(' at ');
+                        } else {
+                          displayVal = Object.entries(val).map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`).join(', ');
+                        }
+                      }
+
+                      const isImage = typeof displayVal === 'string' && (
+                        displayVal.startsWith('data:image/') ||
+                        (displayVal.startsWith('http') && /\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(displayVal))
                       );
 
                       return (
@@ -922,7 +934,7 @@ export default function EnquiriesPage() {
                             <div className="mt-1 bg-stone-50 border border-[#F0E7DE] rounded-2xl p-2.5 flex flex-col sm:flex-row items-center gap-3">
                               <div className="relative group rounded-xl overflow-hidden border border-stone-200/70 bg-white w-full sm:w-36 h-36 shrink-0 shadow-xs">
                                 <img
-                                  src={val}
+                                  src={displayVal}
                                   alt="Reference Attachment"
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                 />
@@ -932,7 +944,7 @@ export default function EnquiriesPage() {
                                 <p className="text-[11px] text-stone-500">Client uploaded visual style / reference look</p>
                                 <div className="flex items-center gap-2 pt-1">
                                   <a
-                                    href={val}
+                                    href={displayVal}
                                     target="_blank"
                                     rel="noreferrer"
                                     download="reference-image"
@@ -945,7 +957,7 @@ export default function EnquiriesPage() {
                             </div>
                           ) : (
                             <div className="text-stone-900 font-bold text-xs bg-white px-3 py-2 rounded-xl border border-stone-200/60 break-words">
-                              {Array.isArray(val) ? val.join(', ') : String(val)}
+                              {Array.isArray(displayVal) ? displayVal.join(', ') : String(displayVal)}
                             </div>
                           )}
                         </div>
@@ -965,84 +977,6 @@ export default function EnquiriesPage() {
                   <div className="bg-stone-50 border border-stone-200/80 p-3.5 sm:p-4 rounded-2xl text-xs text-stone-700 whitespace-pre-wrap leading-relaxed shadow-2xs break-words">
                     {/* Sanitize any potential long base64 strings in historical records */}
                     {detailModalEnquiry.notes.replace(/data:image\/[a-zA-Z0-9.+]+;base64,[A-Za-z0-9+/=]+/g, '[Attached Reference Photo (See Image Above)]')}
-                  </div>
-                </div>
-              )}
-
-              {/* WhatsApp Notification Lifecycle Audit */}
-              {detailModalEnquiry.whatsapp_notifications && (
-                <div className="space-y-2 pt-2">
-                  <h4 className="font-bold text-stone-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                    <Share2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>WhatsApp Delivery Lifecycle</span>
-                  </h4>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {/* Admin Alert Card */}
-                    <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-stone-800">Admin Alert</span>
-                        <span
-                          className={`font-bold px-2 py-0.5 rounded text-[10px] ${
-                            detailModalEnquiry.whatsapp_notifications.admin_alert?.status === 'DELIVERED'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : detailModalEnquiry.whatsapp_notifications.admin_alert?.status === 'SENT'
-                              ? 'bg-blue-100 text-blue-800'
-                              : detailModalEnquiry.whatsapp_notifications.admin_alert?.status === 'FAILED'
-                              ? 'bg-rose-100 text-rose-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {detailModalEnquiry.whatsapp_notifications.admin_alert?.status || 'NOT QUEUED'}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-stone-500">
-                        Template: <code className="text-stone-700 font-mono">new_enquiry_alert__admin</code>
-                      </p>
-                      {detailModalEnquiry.whatsapp_notifications.admin_alert?.recipient && (
-                        <p className="text-[11px] text-stone-500">
-                          Recipient: +{detailModalEnquiry.whatsapp_notifications.admin_alert.recipient}
-                        </p>
-                      )}
-                      {detailModalEnquiry.whatsapp_notifications.admin_alert?.provider_message_id && (
-                        <p className="text-[10px] text-stone-400 font-mono truncate">
-                          ID: {detailModalEnquiry.whatsapp_notifications.admin_alert.provider_message_id}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Customer Ack Card */}
-                    <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-stone-800">Customer Ack</span>
-                        <span
-                          className={`font-bold px-2 py-0.5 rounded text-[10px] ${
-                            detailModalEnquiry.whatsapp_notifications.customer_ack?.status === 'DELIVERED'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : detailModalEnquiry.whatsapp_notifications.customer_ack?.status === 'SENT'
-                              ? 'bg-blue-100 text-blue-800'
-                              : detailModalEnquiry.whatsapp_notifications.customer_ack?.status === 'FAILED'
-                              ? 'bg-rose-100 text-rose-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {detailModalEnquiry.whatsapp_notifications.customer_ack?.status || 'NOT QUEUED'}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-stone-500">
-                        Template: <code className="text-stone-700 font-mono">new_enquiry_notification</code>
-                      </p>
-                      {detailModalEnquiry.whatsapp_notifications.customer_ack?.recipient && (
-                        <p className="text-[11px] text-stone-500">
-                          Recipient: +{detailModalEnquiry.whatsapp_notifications.customer_ack.recipient}
-                        </p>
-                      )}
-                      {detailModalEnquiry.whatsapp_notifications.customer_ack?.provider_message_id && (
-                        <p className="text-[10px] text-stone-400 font-mono truncate">
-                          ID: {detailModalEnquiry.whatsapp_notifications.customer_ack.provider_message_id}
-                        </p>
-                      )}
-                    </div>
                   </div>
                 </div>
               )}

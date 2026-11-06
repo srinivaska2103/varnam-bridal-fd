@@ -109,10 +109,10 @@ export default function UserDashboardPage() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* 1. Welcome Section — Identical Luxury Warm Cream Banner (Matching Image 2) */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white via-[#FFFBF7] to-orange-50/50 border border-orange-200/70 p-5 sm:p-7 shadow-xs">
+      {/* 1. Welcome Section — Modern Orange Studio Banner */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-orange-500 via-[#EA580C] to-amber-500 border border-orange-400 p-5 sm:p-7 shadow-md text-white">
         {/* Soft background ambient glow */}
-        <div className="absolute -right-16 -top-16 w-56 h-56 bg-orange-300/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -right-16 -top-16 w-56 h-56 bg-white/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute right-1/3 -bottom-10 w-44 h-44 bg-amber-300/15 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 sm:gap-6">
@@ -120,31 +120,27 @@ export default function UserDashboardPage() {
           <div className="space-y-2.5 max-w-2xl">
             {/* Top row: Date pill + Time of day badge */}
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold bg-white border border-orange-200/80 text-stone-700 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-[#F97316]" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold bg-white/20 backdrop-blur-xs border border-white/30 text-white shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-200" />
                 <span className="capitalize">{todayFormatted}</span>
               </span>
 
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold text-[11px] border shadow-2xs ${greetingInfo.iconBg}`}>
-                <GreetingIcon className={`w-3.5 h-3.5 ${greetingInfo.iconColor}`} />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-semibold text-[11px] bg-white/20 backdrop-blur-xs border border-white/30 text-white shadow-2xs">
                 <span>{greetingInfo.text}</span>
               </span>
             </div>
 
             {/* Main Greeting Heading */}
             <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#292524] tracking-tight flex items-center flex-wrap gap-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight flex items-center flex-wrap gap-2">
                 <span>{greetingInfo.text},</span>
-                <span className="text-[#EA580C] capitalize font-extrabold">
+                <span className="text-amber-100 capitalize font-extrabold">
                   {firstName}
                 </span>
-                <span className="inline-block transform hover:rotate-12 transition-transform origin-bottom-right cursor-default select-none text-2xl sm:text-3xl">
-                  {greetingInfo.emoji}
-                </span>
               </h1>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-orange-100/90 leading-relaxed">
                 Here&apos;s your daily studio briefing for{' '}
-                <span className="font-bold text-[#C2410C] bg-orange-100/70 px-2 py-0.5 rounded-md border border-orange-200/60 inline-block">
+                <span className="font-bold text-white bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/30 inline-block shadow-2xs">
                   {currentBusiness?.name || 'Srinivas K A\'s Bridal Studio'}
                 </span>
               </p>
@@ -155,9 +151,9 @@ export default function UserDashboardPage() {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href={`/${studioSlug}/user/enquiries`}
-              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 to-[#EA580C] hover:from-orange-600 hover:to-orange-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-orange-500/20 active:scale-98 transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-white hover:bg-orange-50 text-orange-600 hover:text-orange-700 font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 text-orange-600" />
               <span>New Enquiry</span>
             </Link>
           </div>
