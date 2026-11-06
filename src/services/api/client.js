@@ -1,10 +1,27 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
+/**
+ * Dynamically resolves the API Base URL at runtime.
+ * In production browsers, routes to `${origin}/api` which is reverse-proxied
+ * by Nginx directly to backend port 5000 (eliminates CORS, preflight, and DNS errors).
+ */
+export function getApiBaseUrl() {
+  if (typeof window !== 'undefined') {
+    const { hostname, origin } = window.location;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+
+    if (!isLocal) {
+      // Same-origin /api proxied via Nginx - zero CORS, zero DNS/SSL mismatch
+      return `${origin}/api`;
+    }
+  }
+
+  return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
+}
 
 export const apiClient = axios.create({
-  baseURL,
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -14,11 +31,12 @@ export const apiClient = axios.create({
 // Request interceptor to attach Authorization and Active Business Context
 apiClient.interceptors.request.use(
   (config) => {
+    config.baseURL = getApiBaseUrl();
+
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       const isUserScope = path.includes('/user/') || path.endsWith('/user');
 
-      // Use isolated token keys depending on portal scope, with seamless fallback
       let token = null;
       if (isUserScope) {
         token = localStorage.getItem('vexa_user_token') || localStorage.getItem('vexa_auth_token');
@@ -51,7 +69,6 @@ apiClient.interceptors.response.use(
 
     // Handle 401 Unauthorized globally
     if (status === 401 && typeof window !== 'undefined') {
-      // Do not interrupt the User login page if user credentials failed
       const path = window.location.pathname;
       const isAuthRoute =
         path.startsWith('/login') ||
@@ -59,7 +76,6 @@ apiClient.interceptors.response.use(
         path.includes('/user/login');
 
       if (!isAuthRoute) {
-        const path = window.location.pathname;
         const isUserScope = path.includes('/user/') || path.endsWith('/user');
         const { userRole, studioSlug } = useAuthStore.getState().logout(isUserScope ? 'USER' : 'ADMIN');
         if ((userRole === 'USER' || isUserScope) && studioSlug) {
