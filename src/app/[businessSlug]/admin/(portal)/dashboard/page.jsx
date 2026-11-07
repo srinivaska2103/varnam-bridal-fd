@@ -121,6 +121,7 @@ export default function DashboardOverviewPage() {
   const {
     data: overviewRes,
     isLoading: loadingOverview,
+    isFetching: isFetchingOverview,
     isError: errorOverview,
     refetch: refetchOverview,
   } = useQuery({
@@ -134,6 +135,7 @@ export default function DashboardOverviewPage() {
   const {
     data: revenueRes,
     isLoading: loadingRevenue,
+    isFetching: isFetchingRevenue,
     isError: errorRevenue,
     refetch: refetchRevenue,
   } = useQuery({
@@ -147,6 +149,7 @@ export default function DashboardOverviewPage() {
   const {
     data: bookingsRes,
     isLoading: loadingBookings,
+    isFetching: isFetchingBookings,
     isError: errorBookings,
     refetch: refetchBookings,
   } = useQuery({
@@ -160,6 +163,7 @@ export default function DashboardOverviewPage() {
   const {
     data: enquiriesRes,
     isLoading: loadingEnquiries,
+    isFetching: isFetchingEnquiries,
     isError: errorEnquiries,
     refetch: refetchEnquiries,
   } = useQuery({
@@ -604,7 +608,13 @@ export default function DashboardOverviewPage() {
               className="p-2.5 text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl transition-all shadow-2xs cursor-pointer flex items-center justify-center shrink-0"
               aria-label="Refresh dashboard data"
             >
-              <RefreshCw className={`w-4 h-4 ${loadingOverview ? 'animate-spin text-white' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 text-white ${
+                  loadingOverview || isFetchingOverview || isFetchingRevenue || isFetchingBookings || isFetchingEnquiries
+                    ? 'animate-spin'
+                    : ''
+                }`}
+              />
             </button>
           </div>
         </div>

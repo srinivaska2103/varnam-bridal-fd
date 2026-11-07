@@ -73,7 +73,7 @@ export default function CampaignsPage() {
   const [campaignToDelete, setCampaignToDelete] = useState(null);
 
   // WhatsApp Campaign (Template 9) state
-  const [waSubTab, setWaSubTab] = useState('automated'); // 'automated' (Templates 1-8) | 'manual' (Template 9)
+  const [waSubTab, setWaSubTab] = useState('manual'); // 'manual' (Template 9)
   const [selectedTemplateForPreview, setSelectedTemplateForPreview] = useState(null);
   const [waCampaignForm, setWaCampaignForm] = useState({
     campaign_name: '',
@@ -615,10 +615,7 @@ export default function CampaignsPage() {
           }`}
         >
           <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
-          <span>WhatsApp Campaigns</span>
-          <span className="text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">
-            9 Templates
-          </span>
+          <span>WhatsApp Broadcast</span>
         </button>
       </div>
 
@@ -628,183 +625,8 @@ export default function CampaignsPage() {
           {/* WhatsApp Prepaid Messaging Wallet Strip */}
           <WhatsAppWalletCard />
 
-          {/* WhatsApp Header & Connection Status Bar */}
-          <div className="bg-white rounded-2xl border border-emerald-100/80 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                <MessageCircle className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold text-stone-900">Official WhatsApp Business API</h3>
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    {waTemplatesData?.data?.connectionStatus === 'CONNECTED' ? 'Connected' : 'Active • Cloud API'}
-                  </span>
-                </div>
-                <p className="text-xs text-stone-500 mt-0.5">
-                  9 Approved Templates • Auto-triggers configured for studio bookings, enquiries, and client follow-ups
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 self-start sm:self-auto">
-              <span className="text-xs text-stone-500 font-medium">Template Scope:</span>
-              <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-stone-100 text-stone-700">
-                8 Automated (Read-Only) + 1 Broadcast
-              </span>
-            </div>
-          </div>
-
-          {/* Sub Navigation Tabs for WhatsApp - Responsive on Mobile */}
-          <div className="flex items-center gap-1.5 sm:gap-2 border-b border-stone-200 pb-1 overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => setWaSubTab('automated')}
-              className={`px-3 sm:px-4 py-2 sm:py-2.5 text-[11px] sm:text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 sm:gap-2 shrink-0 cursor-pointer ${
-                waSubTab === 'automated'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-white text-stone-600 hover:bg-stone-50 border border-stone-200'
-              }`}
-            >
-              <Zap className="w-3.5 h-3.5" />
-              <span>Automated (1–8)</span>
-              <span
-                className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
-                  waSubTab === 'automated' ? 'bg-emerald-700 text-white' : 'bg-stone-100 text-stone-600'
-                }`}
-              >
-                Read-Only
-              </span>
-            </button>
-
-            <button
-              onClick={() => setWaSubTab('manual')}
-              className={`px-3 sm:px-4 py-2 sm:py-2.5 text-[11px] sm:text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 sm:gap-2 shrink-0 cursor-pointer ${
-                waSubTab === 'manual'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-white text-stone-600 hover:bg-stone-50 border border-stone-200'
-              }`}
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>Broadcast (Template 9)</span>
-              <span
-                className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
-                  waSubTab === 'manual' ? 'bg-emerald-700 text-white' : 'bg-orange-100 text-orange-800'
-                }`}
-              >
-                Editable
-              </span>
-            </button>
-          </div>
-
-          {/* SUB-TAB 1: AUTOMATED TEMPLATES (1 - 8, READ-ONLY) */}
-          {waSubTab === 'automated' ? (
-            <div className="space-y-4">
-              <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 flex items-start gap-3 text-xs text-amber-900">
-                <Lock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold">System Protected Automated Templates:</span>
-                  <p className="mt-0.5 text-stone-600 leading-relaxed">
-                    Templates 1–8 are strictly automated and trigger on system events (enquiry submissions, booking confirmations, consultation reminders, and balance alerts). Content and variable structures are Meta WhatsApp approved and cannot be altered by studio users to maintain delivery compliance.
-                  </p>
-                </div>
-              </div>
-
-              {isWaTemplatesLoading ? (
-                <div className="py-12 flex justify-center">
-                  <LoadingSpinner />
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(waTemplatesData?.data?.templates || [])
-                    .filter((t) => t.isAutomated)
-                    .map((tpl) => (
-                      <div
-                        key={tpl.id}
-                        className="bg-white rounded-2xl border border-stone-200/80 hover:border-emerald-300 transition-all p-5 shadow-xs flex flex-col justify-between"
-                      >
-                        <div>
-                          {/* Card Top Badges */}
-                          <div className="flex items-center justify-between gap-2 mb-3">
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 border border-stone-200 flex items-center gap-1">
-                              Template #{tpl.number}
-                            </span>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                                <Check className="w-3 h-3 text-emerald-600" /> Meta Approved
-                              </span>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200 flex items-center gap-1">
-                                <Lock className="w-2.5 h-2.5" /> Read-Only
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Template Title & WhatsApp Icon */}
-                          <div className="flex items-start gap-2.5 mb-2">
-                            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
-                              <MessageCircle className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-bold text-stone-900 leading-snug">{tpl.name}</h4>
-                              <p className="text-[11px] text-stone-500 font-mono mt-0.5">{tpl.templateName} • {tpl.category}</p>
-                            </div>
-                          </div>
-
-                          {/* Trigger Event & Purpose */}
-                          <div className="mt-3 p-3 bg-stone-50/70 rounded-xl border border-stone-100 space-y-1.5 text-xs">
-                            <div>
-                              <span className="font-bold text-stone-700">Trigger Event: </span>
-                              <span className="text-stone-600">{tpl.trigger}</span>
-                            </div>
-                            <div>
-                              <span className="font-bold text-stone-700">Purpose: </span>
-                              <span className="text-stone-600">{tpl.purpose}</span>
-                            </div>
-                          </div>
-
-                          {/* Message Template Read-Only Preview */}
-                          <div className="mt-3">
-                            <div className="text-[11px] font-bold text-stone-600 mb-1.5 flex items-center justify-between">
-                              <span>Approved Message Content:</span>
-                              <span className="text-[10px] font-normal text-stone-400">Non-editable</span>
-                            </div>
-                            <div className="bg-[#EBF7E9]/70 border border-emerald-200/60 rounded-xl p-3 text-xs text-stone-800 whitespace-pre-wrap font-sans leading-relaxed max-h-48 overflow-y-auto">
-                              {tpl.preview}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Status Footer & Test Action */}
-                        <div className="pt-3 mt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                          <span className="text-stone-500 flex items-center gap-1 font-medium">
-                            <Zap className="w-3 h-3 text-emerald-500 shrink-0" /> Auto-Triggers on Event
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setTestingTemplate(tpl);
-                              setTestPhoneNumber(
-                                currentBusiness?.whatsapp_phone ||
-                                currentBusiness?.business_phone ||
-                                user?.phone ||
-                                waTemplatesData?.data?.phoneNumber ||
-                                ''
-                              );
-                            }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 rounded-lg font-bold transition-all cursor-pointer text-[11px] shadow-2xs"
-                          >
-                            <Send className="w-3 h-3 text-emerald-600" />
-                            <span>Test on My Phone</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            /* SUB-TAB 2: MANUAL CAMPAIGN (TEMPLATE 9, EDITABLE INPUTS ONLY) */
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* SUB-TAB 2: MANUAL CAMPAIGN (TEMPLATE 9, EDITABLE INPUTS ONLY) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* WhatsApp Campaign Form */}
               <div className="lg:col-span-2 space-y-6">
                 <Card className="p-6 border border-emerald-200/80 shadow-sm bg-white">
@@ -815,10 +637,10 @@ export default function CampaignsPage() {
                       </div>
                       <div>
                         <h2 className="text-base font-bold text-stone-900">
-                          Template 9: Special Bridal Packages Campaign
+                          Special Bridal Packages Broadcast
                         </h2>
                         <p className="text-xs text-stone-500">
-                          Official WhatsApp Business Template 9 • User-Triggered Manual Broadcast
+                          User-Triggered Promotional WhatsApp Broadcast
                         </p>
                       </div>
                     </div>
@@ -1033,7 +855,6 @@ export default function CampaignsPage() {
                 </div>
               </div>
             </div>
-          )}
         </div>
       ) : activeTab === 'create' ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1516,7 +1337,7 @@ export default function CampaignsPage() {
             <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
               <strong>Explicit User Confirmation Required</strong>
               <p>
-                You are about to broadcast <strong>Template 9: Special Bridal Packages</strong> to{' '}
+                You are about to broadcast <strong>Special Bridal Packages</strong> to{' '}
                 <strong>{waAudienceData?.data?.count || 0} clients</strong>. This will be dispatched via WhatsApp Business API.
               </p>
             </div>

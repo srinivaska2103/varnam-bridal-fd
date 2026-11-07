@@ -974,9 +974,61 @@ export default function EnquiriesPage() {
                     <MessageSquare className="w-3.5 h-3.5 text-[#F97316]" />
                     <span>Notes / Requirements</span>
                   </h4>
-                  <div className="bg-stone-50 border border-stone-200/80 p-3.5 sm:p-4 rounded-2xl text-xs text-stone-700 whitespace-pre-wrap leading-relaxed shadow-2xs break-words">
-                    {/* Sanitize any potential long base64 strings in historical records */}
-                    {detailModalEnquiry.notes.replace(/data:image\/[a-zA-Z0-9.+]+;base64,[A-Za-z0-9+/=]+/g, '[Attached Reference Photo (See Image Above)]')}
+                  <div className="bg-gradient-to-br from-stone-50 to-orange-50/20 border border-stone-200/80 p-4 rounded-2xl text-xs text-stone-700 shadow-2xs break-words space-y-2.5">
+                    {(() => {
+                      const cleanRawNotes = detailModalEnquiry.notes
+                        .replace(/data:image\/[a-zA-Z0-9.+]+;base64,[A-Za-z0-9+/=]+/g, '[Attached Reference Photo (See Image Above)]')
+                        .replace(/_requested_consultation:\s*\[object Object\]/gi, '')
+                        .trim();
+
+                      // If notes starts with "Public Form Submission:" parse structured key-value rows
+                      if (cleanRawNotes.startsWith('Public Form Submission:')) {
+                        const contentLines = cleanRawNotes
+                          .replace(/^Public Form Submission:\s*/, '')
+                          .split('\n')
+                          .map((l) => l.trim())
+                          .filter(Boolean);
+
+                        return (
+                          <div>
+                            <div className="text-[11px] font-bold text-orange-700 uppercase tracking-wider pb-2 border-b border-orange-200/50 mb-2 flex items-center justify-between">
+                              <span>Client Submission Details</span>
+                              <span className="text-[10px] text-stone-400 font-normal">Public Form</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                              {contentLines.map((line, lIdx) => {
+                                const colonIdx = line.indexOf(':');
+                                if (colonIdx > 0) {
+                                  const label = line.slice(0, colonIdx).trim();
+                                  const val = line.slice(colonIdx + 1).trim();
+                                  return (
+                                    <div key={lIdx} className="bg-white/80 p-2.5 rounded-xl border border-stone-200/60 flex flex-col gap-0.5">
+                                      <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
+                                        {label.replace(/_/g, ' ')}
+                                      </span>
+                                      <span className="text-xs font-semibold text-stone-800 break-words">
+                                        {val}
+                                      </span>
+                                    </div>
+                                  );
+                                }
+                                return (
+                                  <p key={lIdx} className="text-xs text-stone-700 font-medium col-span-full">
+                                    {line}
+                                  </p>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="whitespace-pre-wrap leading-relaxed font-medium">
+                          {cleanRawNotes}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
@@ -1156,11 +1208,11 @@ export default function EnquiriesPage() {
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
                     Event Date
                   </label>
-                  <input
-                    type="date"
+                  <ModernDatePicker
                     value={formData.event_date}
-                    onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-[#F0E7DE] bg-white focus:outline-none focus:ring-2 focus:ring-[#F97316]/20 focus:border-[#F97316]"
+                    onChange={(val) => setFormData({ ...formData, event_date: val })}
+                    placeholder="Select event date..."
+                    disablePastDates={false}
                   />
                 </div>
               </div>

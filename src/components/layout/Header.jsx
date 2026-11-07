@@ -294,16 +294,64 @@ export function Header({ onMenuClick }) {
                     const isFailed = notif.status === 'FAILED';
 
                     // Humanize raw template/notification names
-                    const formatTitle = (title) => {
-                      if (!title) return 'System Alert';
-                      if (title.toUpperCase() === 'TRANSACTIONAL') return 'Transactional Message';
-                      return title
-                        .replace(/[_-]/g, ' ')
-                        .replace(/\b\w/g, (c) => c.toUpperCase());
+                    const getTitleAndSubtitle = (n) => {
+                      const channel = (n.channel || (n.recipient_phone ? 'WHATSAPP' : 'EMAIL')).toUpperCase();
+                      const clientName = n.customers?.full_name || n.enquiries?.customer_name || n.bookings?.customers?.full_name;
+
+                      let mainTitle = '';
+                      let subtitle = '';
+
+                      // 1. WhatsApp / Template Specific
+                      if (n.template_name) {
+                        const t = n.template_name.toLowerCase();
+                        if (t.includes('admin_enquiry') || t.includes('new_enquiry_alert')) {
+                          mainTitle = 'New Enquiry Alert';
+                          subtitle = clientName ? `Lead from ${clientName}` : 'New bridal enquiry received';
+                        } else if (t.includes('customer_enquiry') || t.includes('new_enquiry_notification')) {
+                          mainTitle = 'Customer Enquiry Ack';
+                          subtitle = clientName ? `Sent confirmation to ${clientName}` : 'Auto-acknowledgement sent to client';
+                        } else if (t.includes('booking_confirmation')) {
+                          mainTitle = 'Booking Confirmed';
+                          subtitle = clientName ? `Wedding booking for ${clientName}` : 'Booking confirmation delivered';
+                        } else if (t.includes('payment') || t.includes('advance')) {
+                          mainTitle = 'Payment Recorded';
+                          subtitle = clientName ? `Payment receipt for ${clientName}` : 'Payment confirmation delivered';
+                        } else if (t.includes('special_bridal') || t.includes('broadcast') || t.includes('campaign')) {
+                          mainTitle = 'WhatsApp Broadcast';
+                          subtitle = n.subject || (clientName ? `Broadcast sent to ${clientName}` : 'Promotional broadcast message');
+                        } else {
+                          mainTitle = t.replace(/[_-]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+                          subtitle = clientName ? `Client: ${clientName}` : (n.subject || 'WhatsApp update');
+                        }
+                      } else if (n.subject) {
+                        // 2. Email Subject based formatting
+                        const s = n.subject;
+                        if (s.includes('New Enquiry:')) {
+                          mainTitle = 'New Enquiry Alert';
+                          subtitle = s.replace(/^[⚡\s]*New Enquiry:\s*/i, '').replace(/-\s*.*$/, '').trim();
+                        } else if (s.includes('Payment Recorded:')) {
+                          mainTitle = 'Payment Recorded';
+                          subtitle = s.replace(/^[💰\s]*Payment Recorded:\s*/i, '').trim();
+                        } else if (s.includes('Thank you for your enquiry')) {
+                          mainTitle = 'Enquiry Welcome Email';
+                          subtitle = clientName ? `Welcome email sent to ${clientName}` : 'Client enquiry acknowledgement';
+                        } else if (s.includes('Following up on your Bridal Enquiry')) {
+                          mainTitle = 'Enquiry Follow-Up Email';
+                          subtitle = clientName ? `Follow-up sent to ${clientName}` : 'Automated follow-up message';
+                        } else {
+                          mainTitle = s.length > 36 ? s.slice(0, 36) + '...' : s;
+                          subtitle = clientName ? `Client: ${clientName}` : (n.recipient_email || n.recipient || 'Studio notification');
+                        }
+                      } else {
+                        mainTitle = n.notification_type === 'MARKETING' || n.notification_type === 'CAMPAIGN' ? 'Marketing Campaign' : 'Studio Alert';
+                        subtitle = clientName ? `Client: ${clientName}` : 'Status update';
+                      }
+
+                      return { mainTitle, subtitle, channel };
                     };
 
-                    // Format phone/email cleanly
-                    const recipientText = notif.recipient_phone || notif.recipient_email || notif.recipient || 'Client update';
+                    const { mainTitle, subtitle, channel } = getTitleAndSubtitle(notif);
+                    const recipientContact = notif.recipient_phone || notif.recipient_email || notif.recipient;
 
                     return (
                       <div
@@ -329,9 +377,13 @@ export function Header({ onMenuClick }) {
                             <div className="w-8 h-8 rounded-xl bg-rose-100/70 text-rose-600 flex items-center justify-center shadow-2xs">
                               <AlertCircle className="w-4 h-4" />
                             </div>
+                          ) : channel === 'WHATSAPP' ? (
+                            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-600 flex items-center justify-center shadow-2xs">
+                              <Phone className="w-4 h-4" />
+                            </div>
                           ) : (
                             <div className="w-8 h-8 rounded-xl bg-orange-100/70 text-[#C2410C] flex items-center justify-center shadow-2xs">
-                              {notif.recipient_phone ? <Phone className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
+                              <Mail className="w-4 h-4" />
                             </div>
                           )}
                         </div>
@@ -340,27 +392,34 @@ export function Header({ onMenuClick }) {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1.5">
                             <p className={`text-xs truncate ${isUnread ? 'font-bold text-stone-900' : 'font-semibold text-stone-750'}`}>
-                              {formatTitle(notif.template_name || notif.notification_type || notif.subject)}
+                              {mainTitle}
                             </p>
                             {isUnread && (
                               <span className="w-2 h-2 rounded-full bg-[#F97316] ring-2 ring-orange-200 shrink-0" />
                             )}
                           </div>
 
-                          <p className="text-[11px] text-stone-600 line-clamp-1 mt-0.5 font-medium flex items-center gap-1">
-                            <span>{recipientText}</span>
+                          <p className="text-[11px] text-stone-600 line-clamp-1 mt-0.5 font-medium">
+                            {subtitle}
                           </p>
 
                           <div className="flex items-center justify-between mt-2 pt-1 border-t border-stone-100/80">
-                            <span className="text-[10px] text-stone-400 font-medium flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-stone-300" />
-                              {notif.created_at
-                                ? new Date(notif.created_at).toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  })
-                                : 'Just now'}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-stone-400 font-medium flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-stone-300" />
+                                {notif.created_at
+                                  ? new Date(notif.created_at).toLocaleTimeString([], {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })
+                                  : 'Just now'}
+                              </span>
+                              {recipientContact && (
+                                <span className="text-[9px] px-1.5 py-0.2 bg-stone-100 text-stone-500 rounded font-mono truncate max-w-[130px]">
+                                  {recipientContact}
+                                </span>
+                              )}
+                            </div>
 
                             {isUnread ? (
                               <button

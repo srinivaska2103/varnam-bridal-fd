@@ -49,22 +49,8 @@ export default function PublicEnquiryFormPage({ params }) {
     event_kind: 'WEDDING',
     event_date: '',
     event_venue: '',
-    consultation_date: '',
-    consultation_time: '',
     custom_answers: {},
   });
-
-  // Fetch consultation slots when customer chooses a consultation date
-  const {
-    data: slotRes,
-    isLoading: isSlotLoading,
-  } = useQuery({
-    queryKey: ['public-form-consultation-slots', businessSlug, answers.consultation_date],
-    queryFn: () => publicFormApi.getConsultationSlots(businessSlug, answers.consultation_date),
-    enabled: !!(businessSlug && answers.consultation_date),
-  });
-
-  const availableSlots = slotRes?.data?.slots || slotRes?.slots || [];
 
   // Fetch published enquiry form
   const { data, isLoading, isError, error } = useQuery({
@@ -137,15 +123,6 @@ export default function PublicEnquiryFormPage({ params }) {
         throw new Error('This date is already booked. Please select another available date.');
       }
 
-      const customAnswersPayload = { ...answers.custom_answers };
-      if (answers.consultation_date && answers.consultation_time) {
-        customAnswersPayload._requested_consultation = {
-          date: answers.consultation_date,
-          time: answers.consultation_time,
-          label: `Requested Consultation on ${answers.consultation_date} at ${answers.consultation_time}`,
-        };
-      }
-
       const payload = {
         customer_name: answers.customer_name.trim(),
         customer_phone: answers.customer_phone.trim(),
@@ -153,25 +130,10 @@ export default function PublicEnquiryFormPage({ params }) {
         event_kind: answers.event_kind || 'WEDDING',
         event_date: answers.event_date || undefined,
         event_venue: answers.event_venue.trim() || undefined,
-        custom_answers: customAnswersPayload,
+        custom_answers: answers.custom_answers,
       };
 
       const res = await publicFormApi.submitForm(businessSlug, payload);
-
-      // If user also picked consultation date/time, trigger consultation request
-      if (answers.consultation_date && answers.consultation_time) {
-        try {
-          await publicWebsiteApi.submitConsultation(businessSlug, {
-            name: answers.customer_name.trim(),
-            phone: answers.customer_phone.trim(),
-            preferred_date: answers.consultation_date,
-            preferred_time: answers.consultation_time,
-            notes: `Requested via Public Enquiry Form. Event: ${answers.event_kind} on ${answers.event_date || 'TBD'}`,
-          });
-        } catch (consErr) {
-          console.warn('[Public Form] Consultation creation notice:', consErr.message);
-        }
-      }
       setSuccessData(res.data);
       setSubmitted(true);
     } catch (err) {
@@ -781,91 +743,6 @@ export default function PublicEnquiryFormPage({ params }) {
               </div>
             );
           })}
-
-          {/* Consultation Appointment Availability Picker */}
-          <div className="p-4 rounded-2xl bg-orange-50/50 border border-orange-200 space-y-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#F97316]" />
-              <span className="font-bold text-[#292524] text-xs sm:text-sm">
-                Book Studio Consultation / Trial (Optional)
-              </span>
-            </div>
-            <p className="text-[11px] text-stone-500">
-              Select an available studio date and appointment time slot for your bridal consultation.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div>
-                <label className="font-semibold text-stone-700 block mb-1 text-[11px]">
-                  Preferred Consultation Date
-                </label>
-                <ModernDatePicker
-                  value={answers.consultation_date}
-                  onChange={(val) => {
-                    setAnswers((prev) => ({
-                      ...prev,
-                      consultation_date: val,
-                      consultation_time: '',
-                    }));
-                  }}
-                  placeholder="Select consultation date..."
-                  disablePastDates={true}
-                  className="w-full text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-stone-700 block mb-1 text-[11px]">
-                  Available Studio Time Slot
-                </label>
-                {!answers.consultation_date ? (
-                  <div className="px-3 py-2.5 rounded-xl border border-stone-200 bg-stone-50 text-stone-400 text-xs">
-                    Select a consultation date first
-                  </div>
-                ) : isSlotLoading ? (
-                  <div className="px-3 py-2.5 rounded-xl border border-stone-200 bg-stone-50 text-stone-500 text-xs flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                    Checking available studio slots...
-                  </div>
-                ) : availableSlots.filter((s) => s.is_available).length === 0 ? (
-                  <div className="px-3 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs">
-                    No open slots on this date. Please pick another date.
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-32 overflow-y-auto p-1 bg-white rounded-xl border border-stone-200">
-                    {availableSlots.map((slot) => (
-                      <button
-                        key={slot.time}
-                        type="button"
-                        disabled={!slot.is_available}
-                        onClick={() =>
-                          setAnswers((prev) => ({
-                            ...prev,
-                            consultation_time: slot.time,
-                          }))
-                        }
-                        className={`py-1.5 px-2 rounded-lg text-xs font-semibold transition-all text-center cursor-pointer ${
-                          answers.consultation_time === slot.time
-                            ? 'bg-[#F97316] text-white shadow-xs'
-                            : slot.is_available
-                            ? 'bg-orange-50 text-orange-800 hover:bg-orange-100 border border-orange-200'
-                            : 'bg-stone-100 text-stone-300 border border-stone-100 cursor-not-allowed line-through'
-                        }`}
-                      >
-                        {slot.display_time}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {answers.consultation_time && (
-                  <div className="text-[10px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                    Slot {answers.consultation_time} selected
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
 
           <div className="pt-3">
             <button
