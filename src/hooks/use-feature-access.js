@@ -64,9 +64,12 @@ export function useFeatureAccess() {
       }
     }
 
+    const isLifetime = featureData.planCode === 'EXCLUSIVE_LIFETIME' || featureData.planTier === 'PREMIUM';
+
     return {
       hasActiveSubscription: isActive,
       isCancelledGracePeriod,
+      isLifetime,
       planTier,
       planCode: featureData.planCode || null,
       planName: featureData.planName || (isActive ? 'Active Subscription' : 'No Active Plan'),

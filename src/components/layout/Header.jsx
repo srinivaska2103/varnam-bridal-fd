@@ -35,7 +35,7 @@ export function Header({ onMenuClick }) {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { currentBusiness, user, logout } = useAuthStore();
-  const { planName, endsAt, hasActiveSubscription, isCancelledGracePeriod } = useFeatureAccess();
+  const { planName, endsAt, hasActiveSubscription, isCancelledGracePeriod, isLifetime } = useFeatureAccess();
   
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -188,24 +188,35 @@ export function Header({ onMenuClick }) {
 
       {/* Right: Subscription Expiry Tag, Notifications Popup, Profile Dropdown */}
       <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-        {/* Subscription Countdown Pill */}
-        {hasActiveSubscription && daysRemaining !== null && (
+        {/* Subscription Countdown / Lifetime Pill */}
+        {hasActiveSubscription && (isLifetime || daysRemaining !== null) && (
           <Link
             href="/subscription"
             className={`flex items-center gap-0.5 sm:gap-1.5 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold border transition-all shrink-0 ${
-              daysRemaining <= 5
+              isLifetime
+                ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100 shadow-2xs'
+                : daysRemaining <= 5
                 ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
                 : daysRemaining <= 10
                 ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
                 : 'bg-orange-50 text-[#C2410C] border-orange-200 hover:bg-orange-100/70'
             }`}
-            title={`Active Plan: ${planName} — ${isCancelledGracePeriod ? 'Ends' : 'Renews'} in ${daysRemaining} days`}
+            title={isLifetime ? `Active Plan: Exclusive Lifetime (Unlimited Access)` : `Active Plan: ${planName} — ${isCancelledGracePeriod ? 'Ends' : 'Renews'} in ${daysRemaining} days`}
           >
-            <Clock className="w-3 sm:w-3.5 h-3 sm:h-3.5 shrink-0 text-[#F97316]" />
+            <Clock className={`w-3 sm:w-3.5 h-3 sm:h-3.5 shrink-0 ${isLifetime ? 'text-amber-600' : 'text-[#F97316]'}`} />
             <span>
-              <span className="hidden sm:inline">{isCancelledGracePeriod ? 'Ends in' : 'Renews in'}{' '}</span>
-              <strong className="font-bold">{daysRemaining}d</strong>
-              <span className="hidden sm:inline">{daysRemaining === 1 ? ' left' : ' left'}</span>
+              {isLifetime ? (
+                <>
+                  <span className="hidden sm:inline">Plan:{' '}</span>
+                  <strong className="font-bold">Lifetime VIP</strong>
+                </>
+              ) : (
+                <>
+                  <span className="hidden sm:inline">{isCancelledGracePeriod ? 'Ends in' : 'Renews in'}{' '}</span>
+                  <strong className="font-bold">{daysRemaining}d</strong>
+                  <span className="hidden sm:inline">{daysRemaining === 1 ? ' left' : ' left'}</span>
+                </>
+              )}
             </span>
           </Link>
         )}
