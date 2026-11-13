@@ -360,7 +360,7 @@ export default function PublicStudioWebsitePage({ params }) {
               href="#contact"
               className="px-5 py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-md brand-gradient active:scale-95 cursor-pointer"
             >
-              Book Consultation
+              Enquire Now
             </a>
           </div>
 
@@ -435,7 +435,7 @@ export default function PublicStudioWebsitePage({ params }) {
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full py-2.5 rounded-xl text-center text-white text-xs font-bold brand-gradient shadow-sm"
               >
-                Book Consultation
+                Enquire Now
               </a>
               <a
                 href={`/${slug}/enquiry-form`}
@@ -501,8 +501,8 @@ export default function PublicStudioWebsitePage({ params }) {
               <span className="text-xs font-bold text-stone-900 block mt-0.5">{studioCity}, {studioState}</span>
             </div>
             <div className="p-3.5 rounded-2xl bg-white border border-orange-100 shadow-2xs">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-orange-600 block">Consultation</span>
-              <span className="text-xs font-bold text-emerald-700 block mt-0.5">Trials by Appointment</span>
+              <span className="text-[10px] uppercase font-bold tracking-wider text-orange-600 block">Enquiries</span>
+              <span className="text-xs font-bold text-emerald-700 block mt-0.5">Quick Response</span>
             </div>
           </div>
         </div>
@@ -618,7 +618,7 @@ export default function PublicStudioWebsitePage({ params }) {
                   href="#contact"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl brand-gradient text-white font-bold text-xs shadow-md transition-all hover:scale-[1.02]"
                 >
-                  <span>Book Consultation &amp; Trial</span>
+                  <span>Book Appointment &amp; Enquiry</span>
                   <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
@@ -1072,91 +1072,6 @@ export default function PublicStudioWebsitePage({ params }) {
                         placeholder="e.g. Signature Bridal Package"
                         className="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-[#FFFDF9]"
                       />
-                    </div>
-                  </div>
-
-                  {/* Consultation Appointment Availability Picker */}
-                  <div className="p-4 rounded-2xl bg-orange-50/40 border border-orange-200/70 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-[#F97316]" />
-                      <span className="font-bold text-stone-900 text-xs sm:text-sm">
-                        Schedule a Free Bridal Consultation / Trial (Optional)
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-stone-500">
-                      Pick a preferred consultation date and available studio slot. Slots are requested until confirmed by the studio.
-                    </p>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      <div>
-                        <label className="font-semibold text-stone-700 block mb-1 text-[11px]">
-                          Preferred Consultation Date
-                        </label>
-                        <ModernDatePicker
-                          value={enquiryForm.consultation_date}
-                          onChange={(val) => {
-                            setEnquiryForm((prev) => ({
-                              ...prev,
-                              consultation_date: val,
-                              consultation_time: '',
-                            }));
-                          }}
-                          placeholder="Select consultation date..."
-                          disablePastDates={true}
-                          className="w-full text-xs"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="font-semibold text-stone-700 block mb-1 text-[11px]">
-                          Available Studio Time Slot
-                        </label>
-                        {!enquiryForm.consultation_date ? (
-                          <div className="px-3 py-2.5 rounded-xl border border-stone-200 bg-stone-50 text-stone-400 text-xs">
-                            Select a consultation date first
-                          </div>
-                        ) : isSlotLoading ? (
-                          <div className="px-3 py-2.5 rounded-xl border border-stone-200 bg-stone-50 text-stone-500 text-xs flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                            Checking real-time studio availability...
-                          </div>
-                        ) : availableSlots.filter((s) => s.is_available).length === 0 ? (
-                          <div className="px-3 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs">
-                            No available slots on this date. Please choose another date.
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-32 overflow-y-auto p-1 bg-white rounded-xl border border-stone-200">
-                            {availableSlots.map((slot) => (
-                              <button
-                                key={slot.time}
-                                type="button"
-                                disabled={!slot.is_available}
-                                onClick={() =>
-                                  setEnquiryForm((prev) => ({
-                                    ...prev,
-                                    consultation_time: slot.time,
-                                  }))
-                                }
-                                className={`py-1.5 px-2 rounded-lg text-xs font-semibold transition-all text-center cursor-pointer ${
-                                  enquiryForm.consultation_time === slot.time
-                                    ? 'bg-[#F97316] text-white shadow-xs'
-                                    : slot.is_available
-                                    ? 'bg-orange-50 text-orange-800 hover:bg-orange-100 border border-orange-200'
-                                    : 'bg-stone-100 text-stone-300 border border-stone-100 cursor-not-allowed line-through'
-                                }`}
-                              >
-                                {slot.display_time}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        {enquiryForm.consultation_time && (
-                          <div className="text-[10px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            Slot {enquiryForm.consultation_time} selected
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
 
